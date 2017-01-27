@@ -12,7 +12,7 @@ for line in f:
     heterozygous=0
     suxnotites=[]
     for i in range(5, len(splittedline), 3): #!tsekare to range
-        individual= splittedline[i] + splittedline[i+1] + splittedline[i+2]
+        individual= splittedline[i] + splittedline[i+1] + splittedline[i+2] #individual = splittedline[i:i+3]
         if individual=='100':
             homozygous_refrence+=1
         elif individual=='010':
