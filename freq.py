@@ -1,7 +1,6 @@
-f=open('/home/rantaplan/master/togamatoproject/data/controls10K.txt')
+f=open('/home/rantaplan/master/togamatoproject/data/mikrakicases.txt')
 
 for line in f: 
-
     line=line.rstrip('\n') 
 #         # if line: (gia an exw thema me tis kenes seires)
     splittedline= line.split(' ')   #einai lista, ta items tis anagnwrizontai ws strings
@@ -10,7 +9,6 @@ for line in f:
     homozygous_refrence=0
     homozygous_alternative=0
     heterozygous=0
-    suxnotites=[]
     for i in range(5, len(splittedline), 3): #!tsekare to range
         individual= splittedline[i] + splittedline[i+1] + splittedline[i+2]
         if individual=='100':
@@ -19,13 +17,11 @@ for line in f:
             heterozygous+=1
         elif individual=='001':
             homozygous_alternative+=1
-#==============================================================================
-#             
-#         #ypologismos suxnotitwn:
+#ypologismos suxnotitwn:
         p= (2*homozygous_refrence + heterozygous)/1000  #einai /2N opou N=500   
         q= (2*homozygous_alternative + heterozygous)/1000 #OR einai q=1-p    
-#     
-#     #HW
+#  ----------------------------------------------------------   
+#     #HW--------------------------------------------------------
 #     #upologizw anamenomeno ARITHMO gonotupwn
 #     expect_homozygous_refrence= (p**2)*500         
 #     expect_homozygous_alternative= (q**2)*500 
@@ -33,12 +29,8 @@ for line in f:
 #     
 #     xtest=((homozygous_refrence-expect_homozygous_refrence)**2)/expect_homozygous_refrence+((heterozygous-expect_heterozygous)**2)/expect_heterozygous+((homozygous_alternative-expect_heterozygous)**2)/expect_heterozygous
     print(snp +' ' + str(p) +' '  + str(q))
-#==============================================================================
 f.close()    
-
-# x= /home/rantaplan/master/togamatoproject/data/mikrakicases.txt
-#allele_frequencies('/home/rantaplan/master/togamatoproject/data/mikrakicases.txt', '/home/rantaplan/master/togamatoproject/data/mikrakicontrols.txt'
-
+#%%
 #SOS elegxos antistixisis tou x me tta cases kai tou y me ta control (kai oxi antistrofa)
 def allele_frequencies(x,y,z):
     '''grapse ti kanei  x:cases y;Controls, z; onoma output'''
@@ -88,29 +80,50 @@ def allele_frequencies(x,y,z):
             
             #KOITAKSE TO EDIT # kanto me return #PREPEI NA GRAFEI SE ARXEIO
             print(snp, round(pCONTROLS, 3) ,'\t', round(qCONTROLS, 3) ,'\t', round(pCASES,3) ,'\t', round(qCASES,3), '\t', round(pCASES+pCONTROLS ,3), '\t', round(qCONTROLS+qCONTROLS,3), file=output_name)
-            output_name.close()
+            output_name.close()  
+#%%
+def suxnotita(datasetLINE):    #prepei na to taiso lines    
+    splittedline= datasetLINE.split(' ')   #einai lista, ta items tis anagnwrizontai ws strings
+    snp= splittedline[0]
             
-            
-            
-            
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
+    homozygous_refrence=0
+    homozygous_alternative=0
+    heterozygous=0
+    for i in range(5, len(splittedline), 3): #!tsekare to range
+                individual= splittedline[i] + splittedline[i+1] + splittedline[i+2]
+                if individual=='100':
+                    homozygous_refrence+=1
+                elif individual=='010':
+                    heterozygous+=1
+                elif individual=='001':
+                    homozygous_alternative+=1
+        #ypologismos suxnotitwn:
+                p= round((2*homozygous_refrence + heterozygous)/1000 , 3)  #einai /2N opou N=500   
+                q= round(1-p , 3)     
                 
+    return snp+'\t'+ str(p) +'\t'+  str(q)        #na dw ta rounds
+
+    #an to eixa se return snp, p, q to ekane tuple! /an to eixa se print meta i epomeni print mmou ekane nera (none)  
+#%%
+with open('/home/rantaplan/master/togamatoproject/data/mikrakicases.txt') as cases, open('/home/rantaplan/master/togamatoproject/data/mikrakicontrols.txt') as controls: 
+    for line_cases, line_controls in zip(cases, controls):
+        line_cases=line_cases.rstrip('\n')
+        line_controls=line_controls.rstrip('\n')        #!to suxnotita(line_cases) exei type: NoneType kaii otan to kanw str() mou typwnei ena None san deuteri grammi
+        
+        print(suxnotita(line_cases), suxnotita(line_controls)[6:])        
+#===================Ο ΑΛΛΟΣ ΤΡΟΠΟΣ ΜΕ ΤΙΣ 2 FOR===========================================================         
+# with open('/home/rantaplan/master/togamatoproject/data/mikrakicases.txt') as cases, open('/home/rantaplan/master/togamatoproject/data/mikrakicontrols.txt') as controls: 
+#     for line_controls in controls:
+#         line_controls=line_controls.rstrip('\n') 
+#         for line_cases in cases:
+#             line_cases=line_cases.rstrip('\n')
+#             if line_cases[:5]==line_controls[:5]:
+#                 print(suxnotita(line_cases))
+#                 break
+#             else:
+#                 continue
+#             
+#         continue                 
+#==============================================================================
         
 
