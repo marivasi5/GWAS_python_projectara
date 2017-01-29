@@ -37,7 +37,7 @@ else:
         #--------ORIZW SUNARTISEIS EDW?????----------#
 
 if args.allele_frequency:    
-    print('kane ta kopla sou')
+    print('kane ta kopla sou #Vlepe arxeio allelefreq')
     
     #........
     
