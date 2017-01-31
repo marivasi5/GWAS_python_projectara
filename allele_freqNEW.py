@@ -19,7 +19,7 @@ def genotype_counts(datasetLINE):    #prepei na to taiso lines
     homozygous_refrence=0
     homozygous_alternative=0
     heterozygous=0
-    for i in range(5, len(splittedline), 3): #!tsekare to range
+    for i in range(5, len(splittedline) -len(splittedline)%3, 3): #!tsekare to range
                 individual= splittedline[i] + splittedline[i+1] + splittedline[i+2]
                 if individual=='100':
                     homozygous_refrence+=1
@@ -44,9 +44,9 @@ def allele_freq(datasetLINE):
 #==============================================================================
 # with open('/home/rantaplan/master/togamatoproject/data/mikrakicases.txt') as file:
 #     for line in file:
-#         print(allele_freq(line))
+#         print(genotype_counts(line))
+# 
 #==============================================================================
-
 #%%            TEST ME 2 ARXEIA
 #==============================================================================
 #  
@@ -74,6 +74,19 @@ if args.allele_frequency:
                  #to print einai anapiro giati to thelw se string   
                  print(allele_freq(line_controls)[0], allele_freq(line_controls)[1], allele_freq(line_controls)[2], allele_freq(line_cases)[1], allele_freq(line_cases)[2], round(allele_freq(line_cases)[1]+allele_freq(line_controls)[1], 3), round(allele_freq(line_cases)[2]+ allele_freq(line_cases)[2], 3), file=output)             
      
+#%%
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
