@@ -1,5 +1,6 @@
 #GIA TREKSIMO
-#python argtest.py -controls_file data/mikrakicontrols.txt -cases_file data/mikrakicases.txt -output testaki -allele_frequency
+#python argtest.py -controls_file data/controlsmikraki.txt -cases_file data/casesmikraki.txt -output testaki -allele_frequency
+
 import os
 import sys
 import argparse
@@ -66,7 +67,7 @@ if args.allele_frequency:
     
 #Kanonika tha prepei na elegxw an to arxeio uparxei idi!!! if not os.path.exists('{'):
     output= open('{}.frequency'.format(args.output), 'w')
-    with open(args.controls_file) as cases, open(args.controls_file) as controls:
+    with open(args.cases_file) as cases, open(args.controls_file) as controls:
         for line_cases, line_controls in zip(cases, controls):
                  line_cases=line_cases.rstrip('\n')
                  line_controls=line_controls.rstrip('\n')        

@@ -6,9 +6,9 @@ with open('/home/rantaplan/master/projectara/data/controlsmikraki.txt') as file:
     for line in file:
         if line[:5]==snpA or line[:5]==snpB:
             line=line.rstrip('\n')
-            snps.append(line)
+            snps.append(line) #ta vazw arxika se lista gia na kanw tin anazitisi me mia mono if(ara me ena mono skanarisma tou arxeiou)
 #%%            
-snpA_splitted=snps[0].split(' ')        #ta vazw arxika se lista gia na kanw tin anazitisi me mia mono if(ara me ena mono skanarisma tou arxeiou)
+snpA_splitted=snps[0].split(' ')        
 snpB_splitted=snps[1].split(' ')
 
 RR=0 ; Rh=0 ; RA=0
@@ -42,7 +42,7 @@ for i in range(1, len(snpA_splitted) -len(snpA_splitted)%3 ,3):
             Ah+=1
         elif b_individual == '001':
             AA+=1
- 
+            
 #%%            
 def genotype_counts(datasetLINE):    #prepei na to taiso lines    
     splittedline= datasetLINE.split(' ')   #einai lista, ta items tis anagnwrizontai ws strings
@@ -75,10 +75,7 @@ def allele_freq(datasetLINE):
 #%%     gia na vrw ta pA pB
 alleles=list(map(allele_freq, snps))
 pA=alleles[0][1]           
-pB=alleles[1][1]           
-            
-            
-            
+pB=alleles[1][1]            
             
             
     
