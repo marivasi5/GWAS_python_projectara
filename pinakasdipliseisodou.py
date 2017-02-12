@@ -1,6 +1,6 @@
 with open('/home/rantaplan/master/projectara/data/controlsmikraki.txt') as file:
-    snpA= 'snp_3'
-    snpB= 'snp_8'
+    snpA= 'snp_0'#kanonika ta diavazei apo argsparse
+    snpB= 'snp_2'        #!SOS MPOREI NA KANEI GREP KAI TO SN_8kati
                     #vazw se lista ta 2 snp 
     snps=[]
     for line in file:
@@ -74,8 +74,103 @@ def allele_freq(datasetLINE):
     return splittedline[0], p, q
 #%%     gia na vrw ta pA pB
 alleles=list(map(allele_freq, snps))
-pA=alleles[0][1]           
-pB=alleles[1][1]            
+pA=alleles[0][1] 
+pa=alleles[0][2]
+pb=alleles[1][2]          
+pB=alleles[1][1]  
+#%%                     EM
+import math
+
+pAB= pA * pB    #tsekare an einai swsti i arxiki timi
+#==============================================================================
+# pAb= pA - pAB
+# paB= pB - pAB
+# pab= 1 - pAB -pA -pB
+# naB = 2*AR + hR + Ah + (hh * (pAb * paB) / ((pAb * paB) + (pAB* pab)))
+# nAB = 2*RR + Rh + hR + (hh * (pAB * pab) / ((pAb * paB) + (pAB* pab)))
+# nab = 2*AA + hA + Ah + (hh * (pAb * paB) / ((pAb * paB) + (pAB* pab)))
+# nAb = 2*RA + Rh + hA + (hh * (pAb * paB) / ((pAb * paB) + (pAB* pab)))
+# 
+#==============================================================================
+EMrun=True
+count=0
+while EMrun:
+    count+=1
+    E= 2*RR + Rh + hR + (pAB * (1 + pAB - pA - pB) * hh)/ (((pA - pAB) * (pB - pAB)) + pAB * (1 + pAB - pA - pB))
+    
+    pAB_MLE= E/1000    #kantw se sxesi me N   
+    
+    pAB_new = (2*RR + Rh + hR + (pAB_MLE * (1 + pAB_MLE - pA - pB) * hh)/ (((pA - pAB_MLE) * (pB - pAB_MLE)) + pAB_MLE * (1 + pAB_MLE - pA - pB)))/1000
+    
+    print(count, abs(pAB_new - pAB))          
+    if abs(pAB_new - pAB)<0.01:
+        EMrun = False
+    else:
+        pAB=pAB_new
+              
+D=pAB_new- (pA*pB)
+r2= D**2 /( pA * pa * pB * pb) #####EINAI MALLON LATHOS
+if D <0:
+    lista= [pA*pB, (1-pA) * (1-pB)]
+    Dmax= min(lista)
+    
+else:
+    lista=[pA*(1-pB), (1-pA)* pB]
+    Dmax= min(lista)
+          
+Dtonos= D/Dmax
+          
+print(r2, D, Dtonos)
+#%%
+pAb_MLE= pA - pAB_MLE
+    paB_MLE= pB - pAB_MLE
+    pab_MLE= 1 - pAB_MLE -pA -pB
+    
+
+
+naB_new = 2*AR + hR + Ah + (hh * (pAb_new * paB_new) / ((pAb_new * paB_new) + (pAB_new* pab_new)))
+nAB_new = 2*RR + Rh + hR + (hh * (pAB_new * pab_new) / ((pAb_new * paB_new) + (pAB_new * pab_new)))
+nab_new = 2*AA + hA + Ah + (hh * (pAb_new * paB_new) / ((pAb_new * paB_new) + (pAB_new* pab_new)))
+nAb_new = 2*RA + Rh + hA + (hh * (pAb_new * paB_new) / ((pAb_new * paB_new) + (pAB_new* pab_new)))
+
+#==============================================================================
+# L= (nAB * math.log(pAB)) + (naB * math.log(paB)) + (nAb * math.log(pAb)) + (nab * math.log(pab))
+# L_new= (nAB_new * math.log(pAB_new)) + (naB_new * math.log(paB_new)) + (nAb_new * math.log(pAb_new)) + (nab_new * math.log(pab_new))
+# 
+#==============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
             
             
     
