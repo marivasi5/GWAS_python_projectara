@@ -199,11 +199,11 @@ y='100controls.txt'
 
 def association_test(x,y): # taizw datasets,gt einai genika argo!
     with open(x) as cases, open(y) as controls:
+        pvalues=[]
+        loci=[]
         for line_cases, line_controls in zip(cases, controls):
             line_cases=line_cases.rstrip('\n')
             line_controls=line_controls.rstrip('\n') #!to suxnotita(line_cases) exei type: NoneType kaii otan to kanw str() mou typwnei ena None san deuteri grammi
-            pvalues=[]
-            loci=[]
             splitted_controls= line_controls.split(' ')
             x2test_ga= stats.chisquare([genotype_counts(line_cases)[1],genotype_counts(line_controls)[1],genotype_counts(line_cases)[2],genotype_counts(line_controls)[2],genotype_counts(line_cases)[3],genotype_counts(line_controls)[3]], [HWE(line_cases)[2],HWE(line_controls)[2], HWE(line_cases)[3],HWE(line_controls)[3],HWE(line_cases)[4],HWE(line_controls)[4]]) 
             pvalues.append(x2test_ga[1])
@@ -240,8 +240,8 @@ plt.plot(loci, pvalues, ls='', marker='.')
 plt.savefig("manhattan")
 plt.show()
 
-#KANEI 125000 WRES NA TREKSEI!!
-
+#sta kanonika datasets KANEI 125000 WRES NA TREKSEI!!
+#%%
 #qq plot
 
 import numpy as np 
