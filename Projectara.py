@@ -247,14 +247,20 @@ plt.show()
 import numpy as np 
 import pylab 
 
+pv = np.asarray(pvalues)
 
-measurements = np.random.normal(loc = 20, scale = 5, size=100)   
-stats.probplot(measurements, dist="norm", plot=pylab)
+stats.probplot(pvalues, dist = stats.exponnorm,sparams=(2.5,), plot=pylab)
+#pylab.set_title("Probplot for exponential distr with shape parameter 2.5")
 pylab.show()
 
+#OR
 
+import statsmodels.api as sm
+import pylab
+pv = np.asarray(pvalues)
 
-
+sm.qqplot(pv, line='s')
+pylab.show()
 
 
 
