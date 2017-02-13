@@ -33,9 +33,41 @@ def allele_freq(datasetLINE):
     p = round((2*genotype_counts(datasetLINE)[1] + genotype_counts(datasetLINE)[3])/(2*N), 3)  #einai /2N opou N=500   
     q = round(1-p,3)    
     return splittedline[0], p, q
-    
+
+
+#Kalw thn allele_freq gia na ftiakxw 2 listes,pou 8 ginoun oi times twn aksonwn g t plot minor_allele_freq
+
+with open('gwas.cases.gen') as cases, open('gwas.controls.gen') as controls:
+    minor_allele_freq_cases=[]
+    minor_allele_freq_controls=[] 
+    for line_cases, line_controls in zip(cases, controls):
+         line_cases=line_cases.rstrip('\n')
+         line_controls=line_controls.rstrip('\n')  
+         minor_allele_freq_cases.append(allele_freq(line_cases)[2])
+         minor_allele_freq_controls.append(allele_freq(line_controls)[2])#to print einai anapiro giati to thelw se string   
+         #snps.append(allele_freq(line_controls)[0])
+         #print(allele_freq(line_controls)[0], allele_freq(line_controls)[1], allele_freq(line_controls)[2], allele_freq(line_cases)[1], allele_freq(line_cases)[2], round(allele_freq(line_cases)[1]+allele_freq(line_controls)[1], 3), round(allele_freq(line_cases)[2]+ allele_freq(line_cases)[2], 3))             
+
+#Plot minor allele freq - Gia ta mikra data set vgazei ok graph,sta megala gamietai!
+import matplotlib.pyplot as plt
+fig, ax = plt.subplots()
+#ax.plot(list(range(0,195145)), minor_allele_freq_cases,   mew=5, color='magenta',linestyle= "-",lw=1, alpha=1)#lw=line width, alpha=opacity
+#ax.plot(list(range(0,195145)), minor_allele_freq_controls,  mew=5, color='cyan',linestyle= "-",lw=1, alpha=1)#lw=line width, alpha=opacity
+X=list(range(0,195145))
+Ycases=minor_allele_freq_cases
+Ycontrols=minor_allele_freq_controls
+legends = ax.plot(X,Ycases, 'b', X, Ycontrols, 'r')
+print (legends)
+plt.legend(legends, ["Cases", "Controls"], loc=1) # loc=2 shmainei panw aristera 
+ax.set_xlabel("SNPs", fontsize=15)
+ax.set_ylabel("Minor Allele Frequencies", fontsize=15)
+ax.set_title("graaaaaaph", fontsize=25)
+plt.show
+
+   
 #==============================================================================
 # #%%
+
 # 
 # def suxnotita(datasetLINE):    #prepei na to taiso lines    
 #     splittedline= datasetLINE.split(' ')   #einai lista, ta items tis anagnwrizontai ws strings
@@ -86,7 +118,8 @@ def allele_freq(datasetLINE):
 #Merged Dataset
 
 #==============================================================================
-# def merger(x,y):
+#==============================================================================
+# # def merger(x,y):
 #     with open(x) as cases, open(y) as controls:
 #         mergedlist=[] #to vzoume se lista gia na mh ftiaxnoume extra endiameso arxeio
 #         for line_cases, line_controls in zip(cases, controls):
@@ -101,16 +134,18 @@ def allele_freq(datasetLINE):
 #                 mergedlist.append(line_all)
 #         return mergedlist
 #==============================================================================
+#==============================================================================
         
 x='gwas.cases.gen'
 y='gwas.controls.gen'
 
-
+x='100cases.txt'
+y='100controls.txt'
 
 
 def merger(x,y):
+    mergedlist=[] #to vαzoume se lista gia na mh ftiaxnoume extra endiameso arxeio
     with open(x) as cases, open(y) as controls:
-        mergedlist=[] #to vzoume se lista gia na mh ftiaxnoume extra endiameso arxeio
         for line_cases, line_controls in zip(cases, controls):
             line_cases=line_cases.rstrip('\n')
             line_controls=line_controls.rstrip('\n')
@@ -120,17 +155,10 @@ def merger(x,y):
                 for i in splitted_controls[5:]:
                     line_all+= ' ' +i  #XRISTOS KAI PANAGIA 
                     #print(line_all) # to len tou string  einai 6029 giati exoume 3029 xarakthres apo line_cases kai oi upoloipoi 3000 einai ta 500*3 atoma + ta kena                
-                    mergedlist.append(line_all)
+                mergedlist.append(line_all)
         return mergedlist
 
 merger(x,y)
-        
-
-        
-        
-
-
-                
     
     
 #%%
@@ -261,6 +289,12 @@ pv = np.asarray(pvalues)
 
 sm.qqplot(pv, line='s')
 pylab.show()
+
+
+#%%Plotakiaaaa
+
+#minor allele frequency plot
+
 
 
 
