@@ -7,7 +7,7 @@ with open('/home/rantaplan/master/projectara/data/controlsmikraki.txt') as file:
         if line[:5]==snpA or line[:5]==snpB:
             line=line.rstrip('\n')
             snps.append(line) #ta vazw arxika se lista gia na kanw tin anazitisi me mia mono if(ara me ena mono skanarisma tou arxeiou)
-#%%            
+#%%                YPOLOGISMOS DIPLOTUPWN
 snpA_splitted=snps[0].split(' ')        
 snpB_splitted=snps[1].split(' ')
 
@@ -16,11 +16,11 @@ hR=0 ; hh=0 ; hA=0
 AR=0 ; Ah=0 ; AA=0  
 
 for i in range(1, len(snpA_splitted) -len(snpA_splitted)%3 ,3):
-    
+    #oi gonotupoi tou kathe atomou stis 2 theseis 
     a_individual= snpA_splitted[i] + snpA_splitted[i+1] + snpA_splitted[i+2]
     b_individual= snpB_splitted[i] + snpB_splitted[i+1] + snpB_splitted[i+2]
     
-    #to elegxw ana grammi
+    #diplotupoi: to elegxw ana grammi
     if a_individual == '100':
         if b_individual == '100':
             RR+=1
@@ -72,26 +72,17 @@ def allele_freq(datasetLINE):
     q= round((genotype_counts(datasetLINE)[2]*2 + genotype_counts(datasetLINE)[3])/(2*N), 3)
     
     return splittedline[0], p, q
-#%%     gia na vrw ta pA pB
+#%%      YPOLOGISMOS pA pB
 alleles=list(map(allele_freq, snps))
 pA=alleles[0][1] 
 pa=alleles[0][2]
 pb=alleles[1][2]          
 pB=alleles[1][1]  
-#%%                     EM
+#%%                     EM ALGORITHM
 import math
 
 pAB= pA * pB    #tsekare an einai swsti i arxiki timi
-#==============================================================================
-# pAb= pA - pAB
-# paB= pB - pAB
-# pab= 1 - pAB -pA -pB
-# naB = 2*AR + hR + Ah + (hh * (pAb * paB) / ((pAb * paB) + (pAB* pab)))
-# nAB = 2*RR + Rh + hR + (hh * (pAB * pab) / ((pAb * paB) + (pAB* pab)))
-# nab = 2*AA + hA + Ah + (hh * (pAb * paB) / ((pAb * paB) + (pAB* pab)))
-# nAb = 2*RA + Rh + hA + (hh * (pAb * paB) / ((pAb * paB) + (pAB* pab)))
-# 
-#==============================================================================
+
 EMrun=True
 count=0
 while EMrun:
@@ -100,7 +91,7 @@ while EMrun:
     
     pAB_MLE= E/1000    #kantw se sxesi me N   
     
-    pAB_new = (2*RR + Rh + hR + (pAB_MLE * (1 + pAB_MLE - pA - pB) * hh)/ (((pA - pAB_MLE) * (pB - pAB_MLE)) + pAB_MLE * (1 + pAB_MLE - pA - pB)))/1000
+    #pAB_new = (2*RR + Rh + hR + (pAB_MLE * (1 + pAB_MLE - pA - pB) * hh)/ (((pA - pAB_MLE) * (pB - pAB_MLE)) + pAB_MLE * (1 + pAB_MLE - pA - pB)))/1000
     
     print(count, abs(pAB_new - pAB))          
     if abs(pAB_new - pAB)<0.01:
@@ -139,7 +130,16 @@ nAb_new = 2*RA + Rh + hA + (hh * (pAb_new * paB_new) / ((pAb_new * paB_new) + (p
 # 
 #==============================================================================
 
-
+#==============================================================================
+# pAb= pA - pAB
+# paB= pB - pAB
+# pab= 1 - pAB -pA -pB
+# naB = 2*AR + hR + Ah + (hh * (pAb * paB) / ((pAb * paB) + (pAB* pab)))
+# nAB = 2*RR + Rh + hR + (hh * (pAB * pab) / ((pAb * paB) + (pAB* pab)))
+# nab = 2*AA + hA + Ah + (hh * (pAb * paB) / ((pAb * paB) + (pAB* pab)))
+# nAb = 2*RA + Rh + hA + (hh * (pAb * paB) / ((pAb * paB) + (pAB* pab)))
+# 
+#==============================================================================
 
 
 
