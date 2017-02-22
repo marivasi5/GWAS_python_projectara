@@ -41,7 +41,7 @@ def allele_freq(datasetLINE):
     
     snp, R, A, het, N = genotype_counts(datasetLINE)
     p= round(R*2 + het/(2*N), 3)  
-    q= round(A*2 + het/(2*N), 3)
+    q= round(A*2 + het/(2*N), 3) #1-p
 #===================TO LATHOS===========================================================
 #     p= round((genotype_counts(datasetLINE)[1]*2 + genotype_counts(datasetLINE)[3])/(2*N), 3)  #einai /2N opou N=500   
 #     q= round((genotype_counts(datasetLINE)[2]*2 + genotype_counts(datasetLINE)[3])/(2*N), 3)
