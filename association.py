@@ -84,24 +84,17 @@ def HWE(x,y):# x=counts_cases, y=counts_controls
 
 def association_test(x,y): # taizw tuples tou genotype_counts # x=counts_cases, y=counts_controls
             from scipy import stats            
-            pvalues=[]
-            loci=[]
-            #for line_cases, line_controls in zip(cases, controls):
-            #line_cases=line_cases.rstrip('\n')
-            #line_controls=line_controls.rstrip('\n') #!to suxnotita(line_cases) exei type: NoneType kaii otan to kanw str() mou typwnei ena None san deuteri grammi
-            #splitted_controls= line_controls.split(' ')
-            snp,x2test_hw,ehr,eha,ehet = HWE(x,y)
-            
-            snp, p_cases, q_cases= allele_freq(x)
-            snp, p_controls, q_controls= allele_freq(y)
-            N=x[4]
-            x2test_ga= stats.chisquare([x[1],y[1],x[2],y[2],x[3],y[3]], [(p_cases**2)*N,(p_controls**2)*N, (q_cases**2)*N, (q_controls**2)*N ,2*p_cases*q_cases*N, 2*p_controls*q_controls*N]) 
-            
-            pvalues.append(x2test_ga.pvalue)
-            loci.append(x[5])
-            # ORAA-aa = (caseAA × ctrlaa) / (caseaa × ctrlAA)
-            # ORAa-aa = (caseAa × ctrlaa) / (caseaa × ctrlAa)
-
+            snp = x[0]
+            loci = x[5]
+            if x[1] > 0 and y[1] > 0 and x[2] >0 and y[2] > 0 and x[3] > 0 and y[3] > 0:
+                snp,x2test_hw,ehr,eha,ehet = HWE(x,y)
+                snp, p_cases, q_cases= allele_freq(x)
+                snp, p_controls, q_controls= allele_freq(y)
+                N=x[4]
+                x2test_ga = stats.chisquare([x[1],y[1],x[2],y[2],x[3],y[3]], [(p_cases**2)*N,(p_controls**2)*N, (q_cases**2)*N, (q_controls**2)*N ,2*p_cases*q_cases*N, 2*p_controls*q_controls*N]) 
+                x2test_ga_final= x2test_ga.pvalue
+            else:
+                x2test_ga_final = "cannot compute pvalue"
             if x[2]!= 0 and y[1]!=0 and y[3]!=0:
     
                 OR_RRAA = (x[1]*y[2])/(x[2]*y[1])
@@ -110,7 +103,8 @@ def association_test(x,y): # taizw tuples tou genotype_counts # x=counts_cases, 
                 OR_RRAA = "none"
                 OR_RAAA = "none"
 
-            return snp, x[5], x2test_ga.pvalue, OR_RRAA, OR_RAAA,pvalues,loci
+            return snp, loci, x2test_ga_final, OR_RRAA, OR_RAAA
+            
 #%%                 HWE treksimo
 
 with open('gwas.cases.gen') as cases, open('gwas.controls.gen') as controls:
@@ -132,9 +126,11 @@ with open('gwas.cases.gen') as cases, open('gwas.controls.gen') as controls:
                 snp, x2test_hw,ehr,eha,ehet = HWE(counts_cases,counts_controls)
                 print(snp, x2test_hw)
 
-#%%                 ASSOS TREKSIMO
+#%%                 ASSOCIATION TREKSIMO
 with open('gwas.cases.gen') as cases, open('gwas.controls.gen') as controls:
     j=0
+    loci_list = []
+    pvalue_list = []
     
     for line_cases, line_controls in zip(cases, controls):
         
@@ -149,7 +145,9 @@ with open('gwas.cases.gen') as cases, open('gwas.controls.gen') as controls:
                 counts_cases=genotype_counts(line_cases)                
                 counts_controls=genotype_counts(line_controls)
                 
-                snp, loci, pvalue, OR_RRAA, OR_RAAA, pvalues_list ,loci_list = association_test(counts_cases,counts_controls)
+                snp, loci, pvalue, OR_RRAA, OR_RAAA  = association_test(counts_cases,counts_controls)
+                loci_list.append(loci)
+                pvalue_list.append(pvalue)
                 print(snp, loci, pvalue, OR_RRAA, OR_RAAA)
 
 
