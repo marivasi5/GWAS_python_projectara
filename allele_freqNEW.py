@@ -34,32 +34,30 @@ def genotype_counts(datasetLINE):
     return snp , homozygous_refrence, homozygous_alternative, heterozygous, N 
             
 #%%                     TO SWSTO
-def allele_freq(datasetLINE):
+def allele_freqLINE(datasetLINE):
     '''Ypologismos suxnotitas allilomorfwn (p=suxnotita refrence allilomorfou, q=suxnotita alternative allilomorfou)
     Input: grammi arxeiou se Genotype File Format 
     Output: tuple (snp_ID, p, q) '''
     
     snp, R, A, het, N = genotype_counts(datasetLINE)
-    p= round(R*2 + het/(2*N), 3)  
-    q= round(A*2 + het/(2*N), 3) #1-p
+    p= round((R*2 + het)/(2*N), 3)  
+    q= round((A*2 + het)/(2*N), 3)
 #===================TO LATHOS===========================================================
 #     p= round((genotype_counts(datasetLINE)[1]*2 + genotype_counts(datasetLINE)[3])/(2*N), 3)  #einai /2N opou N=500   
 #     q= round((genotype_counts(datasetLINE)[2]*2 + genotype_counts(datasetLINE)[3])/(2*N), 3)
 #==============================================================================
     return snp, p, q
-#==============================================================================
-# #%%                
-# def allele_freqNEW(x):  #isws prepei na to treksoume etsi gia na vroume kai gia to merged xwris na exoume kanei merging 
-#     '''Ypologismos suxnotitas allilomorfwn (p=suxnotita refrence allilomorfou, q=suxnotita alternative allilomorfou)
-#     *Prepei prwta na treksi i genotype_counts*
-#     Input: tuple  (snp_ID, arithmos omozugwn atomwn gia to refrence allilomorfo, arithmos omozugwn atomwn gia to alternative allilomorfo, arithmos eterozugwn atomwn, sunolo atomwn)
-#     Output: tuple (snp_ID, p, q) '''
-#     
-#     snp, R, A, het, N = χ
-#     p= round(R*2 + het/(2*N), 3)  
-#     q= round(A*2 + het/(2*N), 3)
-# 
-#==============================================================================
+#%%                
+def allele_freq(x):  #isws prepei na to treksoume etsi gia na vroume kai gia to merged xwris na exoume kanei merging 
+    '''Ypologismos suxnotitas allilomorfwn (p=suxnotita refrence allilomorfou, q=suxnotita alternative allilomorfou)
+    *Prepei prwta na treksi i genotype_counts*
+    Input: tuple  (snp_ID, arithmos omozugwn atomwn gia to refrence allilomorfo, arithmos omozugwn atomwn gia to alternative allilomorfo, arithmos eterozugwn atomwn, sunolo atomwn)
+    Output: tuple (snp_ID, p, q) '''
+    
+    snp, R, A, het, N = x
+    p= round((R*2 + het)/(2*N), 3)  
+    q= round((A*2 + het)/(2*N), 3)
+    return snp, p, q
 #%%            TEST ME 2 ARXEIA
 #==============================================================================
 # import time
@@ -78,8 +76,8 @@ def allele_freq(datasetLINE):
 #                 counts_cases=genotype_counts(line_cases)                
 #                 counts_controls=genotype_counts(line_controls)
 #                 
-#                 snp, p_controls, q_controls = allele_freqNEW(counts_controls)
-#                 snp1, p_cases, q_cases = allele_freqNEW(counts_cases)
+#                 snp, p_controls, q_controls = allele_freq(counts_controls)
+#                 snp, p_cases, q_cases = allele_freq(counts_cases)
 # 
 #     print(time.time()-start)     
 # 
@@ -103,40 +101,21 @@ if args.allele_frequency:
                      print(j)   
                 j += 1
                  
-                 snp, p_controls, q_controls = allele_freq(line_controls)
-                 snp1, p_cases, q_cases = allele_freq(line_cases)
-                 
-                 print(snp1, p_controls, q_controls, p_cases, q_cases, file=output)
+#=======================ME LINES=======================================================
+#                 snp, p_controls, q_controls = allele_freqLINE(line_controls)
+#                 snp1, p_cases, q_cases = allele_freqLINE(line_cases)
+#                  
+#                 print(snp1, p_controls, q_controls, p_cases, q_cases, file=output)
 #==============================================================================
-#                 counts_cases=genotype_counts(line_cases)                
-#                 counts_controls=genotype_counts(line_controls)
-#                 
-#                 snp, p_controls, q_controls = allele_freq(counts_controls)
-#                 snp1, p_cases, q_cases = allele_freq(counts_cases)
-# 
-# 
-#==============================================================================
-
-
+                counts_cases=genotype_counts(line_cases)                
+                counts_controls=genotype_counts(line_controls)
+                counts_merged= (counts_controls[0], counts_cases[1]+counts_controls[1], counts_cases[2]+counts_controls[2], counts_cases[3]+counts_controls[3], counts_cases[4]+counts_controls[4]) 
+                
+                snp, p_controls, q_controls = allele_freq(counts_controls)
+                snp, p_cases, q_cases = allele_freq(counts_cases)
+                snp, p_merged, q_merged = allele_freq(counts_merged)
+            
+                print(snp, p_controls, q_controls, p_cases, q_cases, p_merged, q_merged, file=output)
     print(time.time()-start)     
 #%%
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
