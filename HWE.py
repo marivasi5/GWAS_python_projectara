@@ -59,19 +59,14 @@ def HWE(line_cases,line_controls):
     counts_cases=genotype_counts(line_cases)                
     counts_controls=genotype_counts(line_controls)
     counts_merged= (counts_controls[0], counts_cases[1]+counts_controls[1], counts_cases[2]+counts_controls[2], counts_cases[3]+counts_controls[3], counts_cases[4]+counts_controls[4]) 
-                
-    #snp, p_controls, q_controls = allele_freq(counts_controls)
-    #snp, p_cases, q_cases = allele_freq(counts_cases)
-    snp, p_merged, q_merged = allele_freq(counts_merged)
-            
-    
-    #splittedline = dataline.split(' ') 
-    N = counts_merged[4]
-    expect_homozygous_refrence = (p_merged**2)*N #pairnoume to plh8os twn anamenomenw reference
-    expect_homozygous_alternative = (q_merged**2)*N
-    expect_heterozygous = p_merged*q_merged*2*N
-    x2test_hw = stats.chisquare([counts_merged[1], counts_merged[3],counts_merged[2]], [expect_homozygous_refrence, expect_heterozygous, expect_homozygous_alternative])
-    return snp, x2test_hw, round(expect_homozygous_refrence,3), round(expect_homozygous_alternative,3), round(expect_heterozygous,3)
+    if counts_merged[1] > 5 and counts_merged[2] > 5  and counts_merged[3] > 5: #This test is invalid when the observed or expected frequencies in each category are too small. A typical rule is that all of the observed and expected frequencies should be at least 5.
+        snp, p_merged, q_merged = allele_freq(counts_merged)
+        N = counts_merged[4]
+        expect_homozygous_refrence = (p_merged**2)*N #pairnoume to plh8os twn anamenomenw reference
+        expect_homozygous_alternative = (q_merged**2)*N
+        expect_heterozygous = p_merged*q_merged*2*N
+        x2test_hw = stats.chisquare([counts_merged[1], counts_merged[3],counts_merged[2]], [expect_homozygous_refrence, expect_heterozygous, expect_homozygous_alternative])
+        return snp, x2test_hw.pvalue, round(expect_homozygous_refrence,3), round(expect_homozygous_alternative,3), round(expect_heterozygous,3)
 
 #%%
 
