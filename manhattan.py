@@ -80,7 +80,18 @@ def HWE(x,y):# x=counts_cases, y=counts_controls
         return snp, "cannot compute pvalue", "ehr", "eha", "ehet"
 #%%
 #%%
-#Genotypic Association --> http://www.gwaspi.org/?page_id=332
+#Genotypic Association --> http://www.gwaspi.org/?page_id=332, https://en.wikipedia.org/wiki/Genome-wide_association_study
+
+
+'''After odds ratios and P-values have been calculated for all SNPs, a common approach is to create a 
+Manhattan plot. In the context of GWA studies, this plot shows the negative logarithm of the P-value
+as a function of genomic location. Thus the SNPs with the most significant association stand out on
+the plot, usually as stacks of points because of haploblock structure. Importantly, the P-value 
+threshold for significance is corrected for multiple testing issues. The exact threshold varies by 
+study,(Wittkowski et al. 2014), but the conventional threshold is 5×10−8 to be significant in the face of hundreds of 
+thousands to millions of tested SNPs (Bush & Moore 2012, Clarke et al. 2011,Barsh et al. 2012). 
+GWA studies typically perform the first analysis in a discovery cohort, followed by validation of 
+the most significant SNPs in an independent validation cohort.'''
 
 def association_test(x,y): # taizw tuples tou genotype_counts # x=counts_cases, y=counts_controls
             from scipy import stats            
@@ -162,29 +173,71 @@ with open('gwas.cases.gen') as cases, open('gwas.controls.gen') as controls:
 import matplotlib.pyplot as plt
 import math
 
-i=0
+
+#Ftiaxnw mia while wste na afiresw ola ta string apo th lista mou
+i=0#ksekinaw apo to prwto stoixeio
 length=len(pvalue_list)
 while i <= length:
-    
     if pvalue_list[i] == 'cannot compute pvalue':
         del pvalue_list[i]
         del loci_list[i]
         i-=1 #meiwnw mesa sto if to i kata 1 wste na elegxw to epomeno stoixeio p mpainei sth 8esh tou string
-        
-    i+=1# auksanw kata 1 wste na proxwraw ston elegxo ths listas
+    i+=1# auksanw kata 1 wste na sunexizw sto epomeno stoixeio ths listas
     length=len(pvalue_list)
-    print (length)
+    #print (length)
     
     
 #pvaluelist_new = list(map(lambda x:x if x!='cannot compute pvalue',pvalue_list))
 
-pvalues = list(map(lambda x:(-math.log(x)),pvalue_list))
+pvalues = list(map(lambda x:(-math.log(x)),pvalue_list))#efarmozw ton arnhtiko logari8mo sola ta pvalues
 
 #fig,ax = plt.subplots()
 plt.plot(loci_list, pvalues, ls='', marker='.')
+#plt.set_xlim(0,6)#oria aksona x
+#plt.axhspan(0,6)
 plt.savefig("manhattan")
 plt.show()
+
 #%%
+#qq plot --> https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot
+'''In statistics, a Q–Q plot[1] ("Q" stands for quantile) is a probability plot, which is a 
+graphical method for comparing two probability distributions by plotting their quantiles against 
+each other.A Q–Q plot is used to compare the shapes of distributions, providing a graphical view of how
+properties such as location, scale, and skewness are similar or different in the two distributions.
+Q–Q plots can be used to compare collections of data, or theoretical distributions.The use of Q–Q 
+plots to compare two samples of data can be viewed as a non-parametric approach to comparing their
+ underlying distributions. A Q–Q plot is generally a more powerful approach to do this than the
+common technique of comparing histograms of the two samples, but requires more skill to interpret. 
+Q–Q plots are commonly used to compare a data set to a theoretical model( Gnanadesikan 1977,
+Thode 2002). This can provide an assessment of "goodness of fit" that is graphical, rather than 
+reducing to a numerical summary. Q–Q plots are also used to compare two theoretical distributions 
+to each other((Gibbons & Chakraborti 2003).Since Q–Q plots compare distributions, there is no need
+ for the values to be observed as pairs, as in a scatter plot, or even for the numbers of values 
+ in the two groups being compared to be equal.'''
+
+
+
+from scipy import  stats
+import numpy as np 
+import pylab 
+
+pv = np.asarray(pvalues)
+
+stats.probplot(pvalues, dist = stats.exponnorm,sparams=(2.5,), plot=pylab)
+#pylab.set_title("Probplot for exponential distr with shape parameter 2.5")
+pylab.savefig("qqplot")
+pylab.show()
+
+#OR  #POLY PIO GRHGOROS!!
+
+import statsmodels.api as sm
+import pylab
+#pv = np.asarray(pvalues)
+
+sm.qqplot(pv, line='s')# etoimo module gia qqplot
+pylab.savefig("qqlot2")
+pylab.show()
+
 
         
 
