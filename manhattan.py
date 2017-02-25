@@ -116,7 +116,11 @@ def association_test(x,y): # taizw tuples tou genotype_counts # x=counts_cases, 
 
             return snp, loci, x2test_ga_final, OR_RRAA, OR_RAAA
             
-#%%                 HWE treksimo
+#%%             
+
+    
+
+#%%                  HWE treksimo
 
 with open('gwas.cases.gen') as cases, open('gwas.controls.gen') as controls:
     j=0
@@ -156,8 +160,8 @@ with open('gwas.cases.gen') as cases, open('gwas.controls.gen') as controls:
                 counts_cases=genotype_counts(line_cases)                
                 counts_controls=genotype_counts(line_controls)
                 
-                snp, loci, pvalue, OR_RRAA, OR_RAAA  = association_test(counts_cases,counts_controls)
-                loci_list.append(loci)
+                snp, locus, pvalue, OR  = allelic_association_test(counts_cases,counts_controls)
+                loci_list.append(locus)
                 pvalue_list.append(pvalue)
                 #print(snp, loci, pvalue, OR_RRAA, OR_RAAA)
 
@@ -169,34 +173,18 @@ with open('gwas.cases.gen') as cases, open('gwas.controls.gen') as controls:
 #%% 
 #==============================================================================
 #Manhattan plot
-
-import matplotlib.pyplot as plt
-import math
-
-
-#Ftiaxnw mia while wste na afiresw ola ta string apo th lista mou
-i=0#ksekinaw apo to prwto stoixeio
-length=len(pvalue_list)
-while i <= length:
-    if pvalue_list[i] == 'cannot compute pvalue':
-        del pvalue_list[i]
-        del loci_list[i]
-        i-=1 #meiwnw mesa sto if to i kata 1 wste na elegxw to epomeno stoixeio p mpainei sth 8esh tou string
-    i+=1# auksanw kata 1 wste na sunexizw sto epomeno stoixeio ths listas
-    length=len(pvalue_list)
-    #print (length)
+def manhattan(x,y): #x einai to pvalue_list kai y to loci_list p exoume parei ap to treksimo ths allele_association_test
+    import matplotlib.pyplot as plt
+    import math
     
-    
-#pvaluelist_new = list(map(lambda x:x if x!='cannot compute pvalue',pvalue_list))
-
-pvalues = list(map(lambda x:(-math.log(x)),pvalue_list))#efarmozw ton arnhtiko logari8mo sola ta pvalues
-
-#fig,ax = plt.subplots()
-plt.plot(loci_list, pvalues, ls='', marker='.')
-#plt.set_xlim(0,6)#oria aksona x
-#plt.axhspan(0,6)
-plt.savefig("manhattan")
-plt.show()
+    pvalues = list(map(lambda x:(-math.log(x)),pvalue_list))#efarmozw ton arnhtiko logari8mo sola ta pvalues
+    plt.plot(loci_list, pvalues, ls='', marker='.', color='green')
+    plt.xlim([0,int(loci_list[-1])])#oria aksona x,mia 8esh akrivws meta to telutaio snp
+    plt.title("Association Manhattan Plot", fontsize=15)
+    plt.xlabel("Position on chr 20", fontsize=10)
+    plt.ylabel("-log(Pvalue)", fontsize=10)
+    plt.savefig("manhattan")
+    plt.show()
 
 #%%
 #qq plot --> https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot
@@ -216,27 +204,28 @@ to each other((Gibbons & Chakraborti 2003).Since Q–Q plots compare distributio
  in the two groups being compared to be equal.'''
 
 
-
-from scipy import  stats
-import numpy as np 
-import pylab 
-
-pv = np.asarray(pvalues)
-
-stats.probplot(pvalues, dist = stats.exponnorm,sparams=(2.5,), plot=pylab)
-#pylab.set_title("Probplot for exponential distr with shape parameter 2.5")
-pylab.savefig("qqplot")
-pylab.show()
-
+def qqplot(x): #x einai to p value_list opws kai sth manhattan
+    from scipy import  stats
+    import math
+    import pylab 
+    pvalues = list(map(lambda x:(-math.log(x)),pvalue_list))#efarmozw ton arnhtiko logari8mo sola ta pvalues
+    stats.probplot(pvalues, dist = stats.exponnorm,sparams=(2.5,), plot=pylab)
+    pylab.set_title("Probplot for exponential distr with shape parameter 2.5")
+    pylab.savefig("qqplot")
+    pylab.show()
+#%%
 #OR  #POLY PIO GRHGOROS!!
-
-import statsmodels.api as sm
-import pylab
-#pv = np.asarray(pvalues)
-
-sm.qqplot(pv, line='s')# etoimo module gia qqplot
-pylab.savefig("qqlot2")
-pylab.show()
+def qqplot(x): #x einai to p value_list opws kai sth manhattan
+    import statsmodels.api as sm
+    import pylab
+    import numpy as np
+    import math
+    pvalues = list(map(lambda x:(-math.log(x)),pvalue_list))#efarmozw ton arnhtiko logari8mo sola ta pvalues
+    pv = np.asarray(pvalues)
+    sm.qqplot(pv, line='s')# etoimo module gia qqplot
+    pylab.set_title("Probplot for exponential distr with shape parameter 2.5")
+    pylab.savefig("qqlot2")
+    pylab.show()
 
 
         
