@@ -10,8 +10,11 @@ parser.add_argument('-remove_snps', help= 'File containing snp_IDs per line. Tho
 parser.add_argument('-keep_samples', help= 'File containing sample IDs per line. Those will be preserved in the dataset. The IDs must be in either cases_NUMBER or controls_NUMBER format.')
 parser.add_argument('-remove_samples' , help= 'File containing sample IDs per line. Those will be excluded from the dataset. The IDs must be in either cases_NUMBER or controls_NUMBER format')
 parser.add_argument('-allele_frequency', action='store_true', help='Returns one-line-per-SNP information: snp_ID, refrence allele frequency in controls, alternative allele frequency in controls, refrence allele frequency in cases, alternative allele frequency in cases, refrence allele frequency in both controls and cases, alternative allele frequency in both controls and cases')           
-parser.add_argument('-HWE', action='store_true', help='Returns one-line-per-SNP information: snp_ID, Hardy Weinberg Equilibrium statistic') 
+parser.add_argument('-HWE', action='store_true', help='Returns one-line-per-SNP information: snp_ID, Hardy Weinberg Equilibrium statistic')
 parser.add_argument('-get_info', help='snp_ID to request from Ensembl Variant Predictor. The IDs must be in snp_NUMBER format.')                   
+parser.add_argument('-association_test', action='store_true', help= 'Performs allelic association test between cases and controls. Returns one-line-per-SNP information: snp_ID, locus, p value calculated from the test, odds ratio between major and minor allele in cases and controls')
+parser.add_argument('-manhattan', action='store_true', help= 'Requires the "-association_test" beforehand. Creates an manhattan plot of the pvalues calculated from the assosiation test')
+parser.add_argument('-qqplot', action='store_true', help= 'Requires the "-association_test" beforehand. Creates an qqplot of the pvalues calculated from the assosiation test')
 
 args = parser.parse_args()
 
@@ -78,6 +81,21 @@ def allele_freq(x):
     p= round((R*2 + het)/(2*N), 3)  
     q= round((A*2 + het)/(2*N), 3)
     return snp, p, q
+#%%
+def major_minor(x):  # controls tuple genotype_counts/allele_freq twn controls, cases genotype_counts/allele_freq twn cases
+    '''Ypologismos tou plh8ous twn major kai minor alleles se ka8e snp
+    *Prepei prwta na treksei i genotype_counts*
+    Input: tuple tis morfis(snp_ID, arithmos omozugwn atomwn gia to refrence allilomorfo, arithmos omozugwn atomwn gia to alternative allilomorfo, arithmos eterozugwn atomwn, sunolo atomwn, thesi SNP sumfwna me to NCBI build 36)
+    Output: tuple (snp_ID, ari8mos atomwn gia to major allilomorfo, ari8mos atomwn gia to minor allilomorf, ari8mos eterozugwn atomwn,sunolo atomwn, thesi SNP sumfwna me to NCBI build 36) '''
+    snp, R, A, het, N, locus = x
+         
+    if R < A:  
+        minor = R
+        major = A
+    else:
+        minor = A   
+        major = R                
+    return snp, major, minor, het, N, locus
     
 #%%                         KEEP SNPS
 if args.keep_snps is not None: 
@@ -170,76 +188,6 @@ if args.remove_samples is not None:
                 newline_cases_string=' '.join(splittedline_cases) + '\n'
                 output_cases.write(newline_cases_string) 
 
-#%%                     ALLELE FREQUENCY 
-if args.allele_frequency:
-    with open(args.cases_file) as cases, open(args.controls_file) as controls,open('{}.frequency'.format(args.output), 'w') as output :
-        for line_cases,line_controls in zip(cases, controls):
-            line_cases=line_cases.rstrip('\n')
-            line_controls=line_controls.rstrip('\n')        
-            
-            counts_cases=genotype_counts(line_cases)                
-            counts_controls=genotype_counts(line_controls)
-            counts_merged= (counts_controls[0], counts_cases[1]+counts_controls[1], counts_cases[2]+counts_controls[2], counts_cases[3]+counts_controls[3], counts_cases[4]+counts_controls[4], counts_controls[5]) 
-            
-            snp, p_controls, q_controls = allele_freq(counts_controls)
-            snp, p_cases, q_cases = allele_freq(counts_cases)
-            snp, p_merged, q_merged = allele_freq(counts_merged)
-            
-            print(snp, p_controls, q_controls, p_cases, q_cases, p_merged, q_merged, file=output)     
-
-#%%                             HWE
-if args.HWE:
-    
-    def HWE(x,y):                               # x=counts_cases, y=counts_controls
-    '''Ypologismos tou Hardy Weinberg Equilibrium statistic gia to enwmeno cases+controls dataset
-    *Prepei prwta na treksi i genotype_counts gia ta dataset ksexwrista*
-    Input: 2 tuple tis morfis (snp_ID, arithmos omozugwn atomwn gia to refrence allilomorfo, arithmos omozugwn atomwn gia to alternative allilomorfo, arithmos eterozugwn atomwn, sunolo atomwn, thesi SNP sumfwna me to NCBI build 36)
-    X: twn Cases    Y: twn contols
-    Output: tuple(snp_ID, pvalue)'''       
-    from scipy import stats #This test is invalid when the observed or expected frequencies in each category are too small. A typical rule is that all of the observed and expected frequencies should be at least 5.       
-    
-    counts_merged= (y[0], x[1]+y[1], x[2]+y[2], x[3]+y[3], x[4]+y[4], x[5]) 
-    
-    if counts_merged[1]!=0 and counts_merged[2]!=0  and counts_merged[3]!=0: 
-        snp, p_merged, q_merged = allele_freq(counts_merged)
-        N = counts_merged[4]
-        expect_homozygous_refrence = (p_merged**2)*N       #pairnoume to plh8os twn anamenomenwn atomwn onozugwn ws pros reference
-        expect_homozygous_alternative = (q_merged**2)*N
-        expect_heterozygous = p_merged*q_merged*2*N
-        x2test_hw = stats.chisquare([counts_merged[1], counts_merged[3],counts_merged[2]], [expect_homozygous_refrence, expect_heterozygous, expect_homozygous_alternative])
-    
-        return snp, x2test_hw.pvalue
-    else:
-        snp = counts_merged[0]
-        return snp, "cannot compute pvalue"
-        
-    with open(args.cases_file) as cases, open(args.controls_file) as controls, open('{}.hwe'.format(args.output), 'w') as output:
-        for line_cases,line_controls in zip(cases, controls):
-            line_cases=line_cases.rstrip('\n')
-            line_controls=line_controls.rstrip('\n')
-                
-            counts_cases=genotype_counts(line_cases)                
-            counts_controls=genotype_counts(line_controls)
-            
-            snp, x2test_hw = HWE(counts_cases,counts_controls)
-            print(snp, x2test_hw, file=output)
-
-#%%
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #%%                             GET INFO
 if args.get_info is not None:
     snp= args.get_info
@@ -282,6 +230,169 @@ if args.get_info is not None:
     else:
         print('Please provide one snp_ID in the required format. Try "--help" for more information.')
    
+#%%                     ALLELE FREQUENCY 
+if args.allele_frequency:
+    with open(args.cases_file) as cases, open(args.controls_file) as controls,open('{}.frequency'.format(args.output), 'w') as output :
+        for line_cases,line_controls in zip(cases, controls):
+            line_cases=line_cases.rstrip('\n')
+            line_controls=line_controls.rstrip('\n')        
+            
+            counts_cases=genotype_counts(line_cases)                
+            counts_controls=genotype_counts(line_controls)
+            counts_merged= (counts_controls[0], counts_cases[1]+counts_controls[1], counts_cases[2]+counts_controls[2], counts_cases[3]+counts_controls[3], counts_cases[4]+counts_controls[4], counts_controls[5]) 
+            
+            snp, p_controls, q_controls = allele_freq(counts_controls)
+            snp, p_cases, q_cases = allele_freq(counts_cases)
+            snp, p_merged, q_merged = allele_freq(counts_merged)
+            
+            print(snp, p_controls, q_controls, p_cases, q_cases, p_merged, q_merged, file=output)     
+
+#%%                             HWE
+if args.HWE:
+    
+    def HWE(x,y):                               # x=counts_cases, y=counts_controls
+        '''Ypologismos tou Hardy Weinberg Equilibrium statistic gia to enwmeno cases+controls dataset
+        *Prepei prwta na treksi i genotype_counts gia ta dataset ksexwrista*
+        Input: 2 tuple tis morfis (snp_ID, arithmos omozugwn atomwn gia to refrence allilomorfo, arithmos omozugwn atomwn gia to alternative allilomorfo, arithmos eterozugwn atomwn, sunolo atomwn, thesi SNP sumfwna me to NCBI build 36)
+        X: twn Cases    Y: twn contols
+        Output: tuple(snp_ID, pvalue)'''       
+        from scipy import stats #This test is invalid when the observed or expected frequencies in each category are too small. A typical rule is that all of the observed and expected frequencies should be at least 5.       
+        
+        counts_merged= (y[0], x[1]+y[1], x[2]+y[2], x[3]+y[3], x[4]+y[4], x[5]) 
+        
+        if counts_merged[1]!=0 and counts_merged[2]!=0  and counts_merged[3]!=0: 
+            snp, p_merged, q_merged = allele_freq(counts_merged)
+            N = counts_merged[4]
+            expect_homozygous_refrence = (p_merged**2)*N       #pairnoume to plh8os twn anamenomenwn atomwn onozugwn ws pros reference
+            expect_homozygous_alternative = (q_merged**2)*N
+            expect_heterozygous = p_merged*q_merged*2*N
+            x2test_hw = stats.chisquare([counts_merged[1], counts_merged[3],counts_merged[2]], [expect_homozygous_refrence, expect_heterozygous, expect_homozygous_alternative])
+        
+            return snp, x2test_hw.pvalue
+        else:
+            snp = counts_merged[0]
+            return snp, "cannot compute pvalue"
+           
+    with open(args.cases_file) as cases, open(args.controls_file) as controls, open('{}.hwe'.format(args.output), 'w') as output:
+            for line_cases,line_controls in zip(cases, controls):
+                line_cases=line_cases.rstrip('\n')
+                line_controls=line_controls.rstrip('\n')
+                    
+                counts_cases=genotype_counts(line_cases)                
+                counts_controls=genotype_counts(line_controls)
+                
+                snp, x2test_hw = HWE(counts_cases,counts_controls)
+                print(snp, x2test_hw, file=output)
+
+#%%
+if args.association_test:
+    def allelic_association_test(a,b): 
+        '''Ypologismos tou allelic association test gia kathe SNP se controls kai cases.
+        *Prepei prwta na treksoun i genotype_counts kai i major_minor*
+        Input: 2 tuple tis morfis (snp_ID, arithmos  atomwn gia to major allilomorfo sta controls/cases, arithmos atomwn gia to minor allilomorfo sta controls/cases, arithmos eterozugwn atomwn sta controls/cases, sunolo atomwn, thesi SNP sumfwna me to NCBI build 36)
+        a: major-minor countstwn CONTROLS   b: major-minor counts twn CASES
+        Output: tuple (snp_ID, locus, pvalue tou association test, odds ratio metaksu major kai minor allele gia cases kai controls ) '''
+        from scipy import stats 
+        snp, major_controls_c, minor_controls_c, het_controls, N, locus = a
+        snp, major_cases_c, minor_cases_c, het_cases, N, locus  = b
+        
+        #Ypologismos plithous atomwn pou feroun ta allilomorfa (major kai minor)
+        counts_major_controls = 2*major_controls_c+het_controls
+        counts_minor_controls = 2*minor_controls_c+het_controls
+        counts_major_cases = 2*major_cases_c+het_cases
+        counts_minor_cases = 2*minor_cases_c+het_cases
+        
+        #Apaitountai gia ton upologismo twn expected counts twn allilomorfwn
+        sum_major = counts_major_controls + counts_major_cases
+        sum_minor = counts_minor_controls + counts_minor_cases
+        #Expected counts allilomorfwn   
+        exp_major_cases= (sum_major * N)/(2*N)      #N=Ncases=Ncontrols
+        exp_minor_cases=  (sum_minor * N)/(2*N)
+        exp_major_controls= (sum_major * N)/(2*N)
+        exp_minor_controls = (sum_minor * N)/(2*N)
+                                     
+        x2test_aa = stats.chisquare([counts_major_controls, counts_minor_controls ,counts_major_cases , counts_minor_cases], [exp_major_controls, exp_minor_controls, exp_major_cases, exp_minor_cases])
+        if minor_cases_c != 0 and major_controls_c != 0:
+            OR= (major_cases_c * minor_controls_c) / (minor_cases_c * major_controls_c)
+            if OR < 1 and OR!=0:
+                OR = 1/OR
+        else:
+            OR = "Nan"
+            
+        return snp, locus, x2test_aa.pvalue,OR
+        
+    with open(args.cases_file) as cases, open(args.controls_file) as controls, open('{}.association'.format(args.output), 'w') as output:    
+        #gia to manhattan plot
+        loci_list = []
+        pvalue_list = []
+    
+        for line_cases, line_controls in zip(cases, controls):
+            line_cases=line_cases.rstrip('\n')
+            line_controls=line_controls.rstrip('\n')
+               
+            counts_cases = genotype_counts(line_cases)                
+            counts_controls = genotype_counts(line_controls)
+             
+            a = major_minor(counts_cases)       #major-minor counts gia cases
+            b = major_minor(counts_controls)    #major-minor counts gia controls
+            
+            snp, locus, pvalue, OR = allelic_association_test(a,b)
+            loci_list.append(locus)
+            pvalue_list.append(pvalue)
+            print(snp, locus, pvalue, OR, file=output)
+
+#%%                         MANHATTAN PLOT
+if args.manhattan and args.association_test:
+    
+    def manhattan(loci_list, pvalue_list): 
+        '''Dimiourgia manhattan plot apo ta pvalues ths HWE h' ths association test
+        *Prepei na xei treksei h HWE h' h allelic_Association_test antistoixa*
+        Input: 2 listes (1 me ta pvalues olwn twn snp (pvalue_list) kai 1 me tis thesis SNP sumfwna me to NCBI build 36)
+        x: loci_list   y: pvalue_list
+        Outupt: manhattan plot'''
+        import matplotlib.pyplot as plt
+        import math
+        
+        pvalues = list(map(lambda x:(-math.log(x)),pvalue_list))        #efarmozw ton arnhtiko logari8mo sola ta pvalues
+        plt.plot(loci_list, pvalues, ls='', marker='.', color='green')
+        #plt.xlim([0,int(loci_list[-1])])#oria aksona x,mia 8esh akrivws meta to telutaio snp
+        plt.title("Association Manhattan Plot", fontsize=15)
+        plt.xlabel("Chromosome 20 position", fontsize=10)
+        plt.ylabel("-log(Pvalue)", fontsize=10)
+        plt.savefig("manhattan.jpg")
+        plt.show()
+    
+    manhattan(loci_list, pvalue_list)
+
+elif args.manhattan and args.association_test==False:
+    print('Can not creat manhattan plot if no association test is performed.')
+
+#%%                             QQPLOT
+if args.qqplot and args.association_test:
+    
+    def qqplot(pvalue_list): 
+        '''Dimiourgia qq plot apo ta pvalues ths association test
+        *Prepei na xei treksei h allelic_association_test *
+        Input: 1 lista me ta pvalues olwn twn snp (pvalue_list) 
+        Outupt: qq plot'''
+        import statsmodels.api as sm
+        import pylab
+        import numpy as np
+        import math
+        pvalues = list(map(lambda x:(-math.log(x)),pvalue_list))#efarmozw ton arnhtiko logari8mo sola ta pvalues
+        pv = np.asarray(pvalues)
+        sm.qqplot(pv, line='s')# etoimo module gia qqplot
+        pylab.title("Qqplot for exponential distribution ")
+        pylab.savefig("qqlot.jpg")
+        pylab.show()
+
+    qqplot(pvalue_list)
+    
+elif args.manhattan and args.association_test==False:
+    print('Can not creat qqplot if no association test is performed.')
+
+
+
 
 
 
