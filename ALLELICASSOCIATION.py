@@ -39,7 +39,10 @@ def allele_freq(x):
 
  #%%            
 def major_minor(x):  # controls tuple genotype_counts/allele_freq twn controls, cases genotype_counts/allele_freq twn cases
-    '''Metraei to plh8os/suxnothta twn major kai minor gonotupwn se ka8e snp'''
+    '''Ypologismos tou plh8ous twn major kai minor alleles se ka8e snp
+    *Prepei prwta na treksei i genotype_counts*
+    Input: tuple tis morfis(snp_ID, arithmos omozugwn atomwn gia to refrence allilomorfo, arithmos omozugwn atomwn gia to alternative allilomorfo, arithmos eterozugwn atomwn, sunolo atomwn, thesi SNP sumfwna me to NCBI build 36)
+    Output: tuple (snp_ID, ari8mos atomwn gia to major allilomorfo, ari8mos atomwn gia to minor allilomorf, ari8mos eterozugwn atomwn,sunolo atomwn, thesi SNP sumfwna me to NCBI build 36) '''
     snp, R, A, het, N, locus = x
          
     if R < A:  
@@ -53,7 +56,14 @@ def major_minor(x):  # controls tuple genotype_counts/allele_freq twn controls, 
     return snp, major, minor, het, N, locus
 
 #%%
-def allelic_association_test(a,b):   
+
+def allelic_association_test(a,b): 
+    '''Ypologismos tou allelic association test gia kathe SNP se controls kai cases.
+    *Prepei prwta na treksoun i genotype_counts kai i major_minor*
+    Input: 2 tuple tis morfis (snp_ID, arithmos  atomwn gia to major allilomorfo sta controls/cases, arithmos atomwn gia to minor allilomorfo sta controls/cases, arithmos eterozugwn atomwn sta controls/cases, sunolo atomwn, thesi SNP sumfwna me to NCBI build 36)
+    a: twn CONTROLS   b: twn CASES
+    Output: tuple (snp_ID, pvalue, odds ratio) '''
+    
     from scipy import stats 
     snp, major_controls_c, minor_controls_c, het_controls, N, locus = a
     snp, major_cases_c, minor_cases_c, het_cases, N, locus  = b
@@ -83,10 +93,13 @@ def allelic_association_test(a,b):
         
     return snp, locus, x2test_aa.pvalue,OR
     
-    #OR = Case A × Control a / Case a × Control A,
-
-
     
+#==============================================================================
+# If OR is < 1:
+# OR = 1/OR
+# 
+#     
+#==============================================================================
 #%%
 #Treksimo Allelic assosciation
 

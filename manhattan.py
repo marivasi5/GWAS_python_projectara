@@ -141,8 +141,8 @@ with open('gwas.cases.gen') as cases, open('gwas.controls.gen') as controls:
                 snp, x2test_hw,ehr,eha,ehet = HWE(counts_cases,counts_controls)
                 print(snp, x2test_hw)
 
-#%%                 ASSOCIATION TREKSIMO
-with open('gwas.cases.gen') as cases, open('gwas.controls.gen') as controls:
+#%%                 ASSOCIATION TREKSIMO meta apo remove
+with open('STUDYremovedHWE_cases') as cases, open('STUDYremovedHWE_controls') as controls:
     j=0
     loci_list = []
     pvalue_list = []
@@ -173,7 +173,13 @@ with open('gwas.cases.gen') as cases, open('gwas.controls.gen') as controls:
 #%% 
 #==============================================================================
 #Manhattan plot
-def manhattan(x,y): #x einai to pvalue_list kai y to loci_list p exoume parei ap to treksimo ths allele_association_test
+def manhattan(x,y): #
+    '''Dimiourgia manhattan plot apo ta pvalues ths HWE h' ths association test
+    *Prepei na xei treksei h HWE h' h allelic_Association_test antistoixa*
+    Input: 2 listes (1 me ta pvalues olwn twn snp (pvalue_list) kai 1 me tis thesis SNP sumfwna me to NCBI build 36)
+    x: loci_list   y: pvalue_list
+    Outupt: manhattan plot'''
+    
     import matplotlib.pyplot as plt
     import math
     
@@ -181,7 +187,7 @@ def manhattan(x,y): #x einai to pvalue_list kai y to loci_list p exoume parei ap
     plt.plot(loci_list, pvalues, ls='', marker='.', color='green')
     plt.xlim([0,int(loci_list[-1])])#oria aksona x,mia 8esh akrivws meta to telutaio snp
     plt.title("Association Manhattan Plot", fontsize=15)
-    plt.xlabel("Position on chr 20", fontsize=10)
+    plt.xlabel("Chromosome 20 position", fontsize=10)
     plt.ylabel("-log(Pvalue)", fontsize=10)
     plt.savefig("manhattan")
     plt.show()
@@ -204,18 +210,22 @@ to each other((Gibbons & Chakraborti 2003).Since Q–Q plots compare distributio
  in the two groups being compared to be equal.'''
 
 
-def qqplot(x): #x einai to p value_list opws kai sth manhattan
+def qqplot_2(x): #x einai to p value_list opws kai sth manhattan
     from scipy import  stats
     import math
     import pylab 
     pvalues = list(map(lambda x:(-math.log(x)),pvalue_list))#efarmozw ton arnhtiko logari8mo sola ta pvalues
     stats.probplot(pvalues, dist = stats.exponnorm,sparams=(2.5,), plot=pylab)
-    pylab.set_title("Probplot for exponential distr with shape parameter 2.5")
-    pylab.savefig("qqplot")
+    pylab.set_title("Probplot for exponential distribution")
+    pylab.savefig("qqplot2")
     pylab.show()
 #%%
 #OR  #POLY PIO GRHGOROS!!
-def qqplot(x): #x einai to p value_list opws kai sth manhattan
+def qqplot(x): 
+    '''Dimiourgia qq plot apo ta pvalues ths association test
+    *Prepei na xei treksei h allelic_association_test *
+    Input: 1 lista me ta pvalues olwn twn snp (pvalue_list) 
+    Outupt: qq plot'''
     import statsmodels.api as sm
     import pylab
     import numpy as np
@@ -223,8 +233,8 @@ def qqplot(x): #x einai to p value_list opws kai sth manhattan
     pvalues = list(map(lambda x:(-math.log(x)),pvalue_list))#efarmozw ton arnhtiko logari8mo sola ta pvalues
     pv = np.asarray(pvalues)
     sm.qqplot(pv, line='s')# etoimo module gia qqplot
-    pylab.set_title("Probplot for exponential distr with shape parameter 2.5")
-    pylab.savefig("qqlot2")
+    pylab.title("Probplot for exponential distribution ")
+    pylab.savefig("qqlot")
     pylab.show()
 
 
