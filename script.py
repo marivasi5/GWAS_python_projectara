@@ -46,6 +46,7 @@ with open('STUDY.frequency') as output:
         
 #%%                     PLOT
 import matplotlib.pyplot as plt
+#Scatterplot
 fig, ax = plt.subplots()
 
 fig_size = plt.rcParams["figure.figsize"]  # default diastaseis askonwn: 4, 6
@@ -63,7 +64,18 @@ ax.set_title("Minor Allele Frequency Distribution", fontsize= 25)
 
 plt.savefig('mafs.jpg')
 plt.show()     
-        
+
+
+#Histogram:Pros8hkh meta to deadline
+
+plt.hist([controls,cases], color=['crimson', 'blue'], label=['Controls','Cases'], alpha=0.5) 
+plt.xlabel("frequencies")
+plt.ylabel("Number of SNPs")
+plt.title("MAFs Distribution plot")
+plt.legend()
+plt.savefig("mafs_hist")
+plt.show()
+
 #%%                 SNP REMOVAL
 
 with open("path to --> 'gwas.cases.gen'") as cases, open("path to --> 'STUDYremovedMAFS_cases'", 'w') as output_cases:
@@ -103,9 +115,9 @@ with open('STUDY.hwe')as file:
             if pvalue< 0.001:
                 remove.append(splittedline[0])
 
-#%%                             PLOT
+#%%                               PLOT
 import matplotlib.pyplot as plt
-
+#Scatterplot
 fig, ax = plt.subplots()
 fig_size = plt.rcParams["figure.figsize"]  # default diastaseis askonwn: 4, 6
 fig_size[0] = 150 # dieurunsh aksona x
@@ -117,7 +129,18 @@ ax.set_ylabel("p-value", fontsize=15)
 ax.set_title("Hardy-Weinberg p-values Distribution", fontsize= 25) 
 plt.savefig('hwe_plot.jpg')
 plt.show()       
-      
+
+#Histogram: Pros8hkh meta to deadline
+
+plt.hist([Y], 80, color="purple") #Y einai h lista me ta pvalues apo to HWE test
+plt.xlabel("pvalue")
+plt.ylabel("Number of SNPs")
+plt.title("Hardy-Weinberg Distribution plot")
+plt.savefig("hwe_hist")
+plt.show()
+   
+
+
 #%%                 REMOVAL
 with open('Path to --> STUDYremovedMAFS_cases') as cases, open('Path to --> STUDYremovedHWE_cases', 'w') as output_cases:
         for line_cases in cases:
