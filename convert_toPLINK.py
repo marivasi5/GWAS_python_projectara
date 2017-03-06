@@ -22,6 +22,7 @@ with open('/home/rantaplan/master/projectara/convert_test.gen') as file, open('c
         
         #gia to map
         print( '20 {} 0 {}'.format(snp, locus), file=output)
+        #ti faaaasi me to genetic distance (to miden)
         
         cases_list=[]   #lista me gonotupous twn cases ana index  (ksexwristi gia to line pou eimaste) 
         
