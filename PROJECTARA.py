@@ -130,7 +130,7 @@ if args.remove_snps is not None:
         
         with open(args.controls_file) as controls, open('{}.controls.gen'.format(args.output), 'w') as output_controls:
             for line_controls in controls:
-                if line_controls.split(' ')[0] in snplist:
+                if line_controls.split(' ')[0] not in snplist:
                     output_controls.write(line_controls)
     
 #%%                         KEEP SAMPLES
